@@ -1,0 +1,13 @@
+<interface>
+  <GigabitEthernet>
+    <name>2</name>
+    <ip>
+      <address>
+        <primary>
+          <address>1.1.1.1</address>
+          <mask>255.255.255.0</mask>
+        </primary>
+      </address>
+    </ip>
+  </GigabitEthernet>
+</interface>

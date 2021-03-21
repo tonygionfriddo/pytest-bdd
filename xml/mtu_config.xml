@@ -1,0 +1,6 @@
+<interface>
+  <GigabitEthernet>
+    <name>2</name>
+    <mtu>1500</mtu>
+  </GigabitEthernet>
+</interface>
