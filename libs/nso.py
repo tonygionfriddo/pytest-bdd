@@ -16,7 +16,7 @@ class NsoLibs:
         return a list of devices from the nso cdb
         :return:
         """
-        error = None
+        error = {}
         device_list = []
         headers = {"Accept": "application/vnd.yang.collection+json"}
         r = requests.get(
@@ -24,6 +24,8 @@ class NsoLibs:
             auth=HTTPBasicAuth(self.un, self.pw),
             headers=headers
         )
+        print(r.status_code)
+        print(r.text)
         if r.status_code == 200:
             response = json.loads(r.text)
             if len(response['collection']['tailf-ncs:device']) > 0:
@@ -45,8 +47,39 @@ class NsoLibs:
         print(r.status_code)
         print(r.text)
 
+    def compare_config(self, device):
+        headers = {"Accept": "application/vnd.yang.data+json"}
+        r = requests.post(
+            url=f'http://{self.hostname}:8080/api/running/devices/device/{device}/_operations/compare-config',
+            auth=HTTPBasicAuth(self.un, self.pw),
+            headers=headers
+        )
+        print(r.status_code)
+        print(r.text)
+        if json.loads(r.text):
+            response = json.loads(r.text)
+            print(type(response))
+            return 1, {'message': 'config diff found', 'config-diff': response['tailf-ncs:output']['diff']}
+        else:
+            return 0, {}
+
+    def check_sync(self, device):
+        headers = {"Accept": "application/vnd.yang.data+json"}
+        r = requests.post(
+            url=f'http://{self.hostname}:8080/api/running/devices/device/{device}/_operations/check-sync',
+            auth=HTTPBasicAuth(self.un, self.pw),
+            headers=headers
+        )
+        print(r.status_code)
+        print(r.text)
+        response = json.loads(r.text)
+        if response['tailf-ncs:output']['result'] == 'out-of-sync':
+            return 1, {'message': f'{device} is out of sync'}
+        else:
+            return 0, {'message': f'{device} is in sync'}
+
     def get_device_dict(self, device_name):
-        error = None
+        error = {}
         headers = {"Accept": "application/vnd.yang.data+json"}
         r = requests.get(
             url=f'http://{self.hostname}:8080/api/running/devices/device/{device_name}',
@@ -81,7 +114,7 @@ class NsoLibs:
 
     def get_packages(self):
         pkg_list = []
-        error = None
+        error = {}
         headers = {"Accept": "application/vnd.yang.data+json"}
         r = requests.get(
             url=f'http://{self.hostname}:8080/api/operational/packages',
@@ -99,7 +132,7 @@ class NsoLibs:
         return pkg_list, error
 
     def reload_packages(self):
-        error = None
+        error = {}
         headers = {"Accept": "application/vnd.yang.data+json"}
         r = requests.post(
             url=f'http://{self.hostname}:8080/api/operational/packages/_operations/reload',
@@ -115,8 +148,16 @@ class NsoLibs:
         return True, error
 
     def post_device_config(self, device_name, xml_file, config_path):
-        error = None
-        path = f'C:/Users/steph/Documents/behave/xml/{xml_file}'
+        error = {}
+        cwd = os.getcwd()
+        split_path = cwd.split('/')
+        if 'tests' in split_path:
+            for _ in range(2):
+                split_path.pop(-1)
+        split_path.append('xml')
+        split_path.append(xml_file)
+        join_path = ('/').join(split_path)
+        path = join_path
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
@@ -136,8 +177,16 @@ class NsoLibs:
             return True, error
 
     def remove_device_trace(self, device_name, xml_file):
-        error = None
-        path = f'C:/Users/steph/Documents/behave/xml/{xml_file}'
+        error = {}
+        cwd = os.getcwd()
+        split_path = cwd.split('/')
+        if 'tests' in split_path:
+            for _ in range(2):
+                split_path.pop(-1)
+        split_path.append('xml')
+        split_path.append(xml_file)
+        join_path = ('/').join(split_path)
+        path = join_path
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
@@ -162,8 +211,16 @@ class NsoLibs:
             return True, error
 
     def install_device_trace(self, device_name, xml_file):
-        error = None
-        path = f'C:/Users/steph/Documents/behave/xml/{xml_file}'
+        error = {}
+        cwd = os.getcwd()
+        split_path = cwd.split('/')
+        if 'tests' in split_path:
+            for _ in range(2):
+                split_path.pop(-1)
+        split_path.append('xml')
+        split_path.append(xml_file)
+        join_path = ('/').join(split_path)
+        path = join_path
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
@@ -182,7 +239,7 @@ class NsoLibs:
             return True, error
 
     def sync_from_device(self, device_name):
-        error = None
+        error = {}
         headers = {"Accept": "application/vnd.yang.data+json"}
         r = requests.post(
             url=f'http://{self.hostname}:8080/api/running/devices/device/{device_name}/_operations/sync-from',
@@ -201,7 +258,7 @@ class NsoLibs:
                 return True, error
 
     def get_device_config_dict(self, device_name, path):
-        error = None
+        error = {}
         headers = {"Accept": "application/vnd.yang.data+json"}
         r = requests.get(
             url=f'http://{self.hostname}:8080/api/running/devices/device/{device_name}{path}',
@@ -217,7 +274,19 @@ class NsoLibs:
 
 if __name__ == '__main__':
     nso = NsoLibs(hostname='192.168.20.60', un='root', pw='dvrlab')
+    return_code, error = nso.compare_config(device='csr1000v')
+    print(return_code)
+    print(error)
+
     """
+    return_code, message = nso.check_sync(device='csr1000v')
+    print(return_code)
+    print(message)
+    
+    return_code, error = nso.compare_config()
+    print(return_code)
+    print(error)
+    
     get device list
     device_list, error = nso.get_device_list()
     print(f'device_list: {device_list}')
@@ -233,6 +302,7 @@ if __name__ == '__main__':
     nso.install_device_trace(device_name='csr1000v', xml_file='set_trace.xml')
     device_data, error = nso.post_device_config(device_name='csr1000v', config_path='ios:native/interface/', xml_file='mtu_config.xml')
     print(device_data)
-    """
+    
     result, error = nso.remove_device_trace(device_name='csr1000v', xml_file='remove_trace.xml')
     print(result)
+    """
