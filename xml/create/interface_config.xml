@@ -1,0 +1,17 @@
+ <config>
+  <native xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-native">
+    <interface>
+      <GigabitEthernet>
+        <name>{{ config.id }}</name>
+        <ip>
+          <address>
+            <primary>
+              <address>{{ config.address }}</address>
+              <mask>{{ config.mask }}</mask>
+            </primary>
+          </address>
+        </ip>
+      </GigabitEthernet>
+    </interface>
+  </native>
+</config>

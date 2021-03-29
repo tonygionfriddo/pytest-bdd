@@ -3,6 +3,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import os
 import xmltodict
+from jinja2 import Template
 
 
 class NsoLibs:
@@ -147,34 +148,44 @@ class NsoLibs:
                     return False, error
         return True, error
 
-    def post_device_config(self, device_name, xml_file, config_path):
-        error = {}
+    def post_device_config(self, device_name, template, config):
         cwd = os.getcwd()
         split_path = cwd.split('/')
+
         if 'tests' in split_path:
             for _ in range(2):
                 split_path.pop(-1)
+        if 'libs' in split_path:
+            split_path.pop(-1)
+
         split_path.append('xml')
-        split_path.append(xml_file)
+        split_path.append(template)
         join_path = ('/').join(split_path)
         path = join_path
+
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
         payload = xmltodict.unparse(xml_data)
+
+        template = Template(payload)
+        rendered_template = template.render(config=config)
+
         headers = {"Accept": "application/vnd.yang.datastore+xml"}
         r = requests.patch(
-            url=f'http://{self.hostname}:8080/api/running/devices/device/{device_name}/config/{config_path}',
+            url=f'http://{self.hostname}:8080/api/running/devices/device/{device_name}/config/',
             auth=HTTPBasicAuth(self.un, self.pw),
             headers=headers,
-            data=payload
+            data=rendered_template
         )
 
         if r.status_code != 204:
-            error = {'message': 'failed to post configuration'}
-            return False, error
-        else:
-            return True, error
+            print(rendered_template)
+            print(r.status_code)
+            print(r.text)
+            return 1, {'message': 'error posting config'}
+
+        return 0, {}
 
     def remove_device_trace(self, device_name, xml_file):
         error = {}
@@ -274,11 +285,15 @@ class NsoLibs:
 
 if __name__ == '__main__':
     nso = NsoLibs(hostname='192.168.20.60', un='root', pw='dvrlab')
+    if_config = { "interface_id": 2, "address": "86.1.1.1", "mask": "255.255.255.0"}
+    nso.post_device_config(device_name='csr1000v', template='delete/interface_config.xml', config=if_config)
+
+
+    """
     return_code, error = nso.compare_config(device='csr1000v')
     print(return_code)
     print(error)
 
-    """
     return_code, message = nso.check_sync(device='csr1000v')
     print(return_code)
     print(message)
