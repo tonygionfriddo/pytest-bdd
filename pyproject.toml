@@ -1,0 +1,12 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "pytest",
+    "pytest-bdd",
+    "requests",
+    "json",
+    "xmltodict",
+    "jinja2"
+]
+build-backend = "setuptools.build_meta"
