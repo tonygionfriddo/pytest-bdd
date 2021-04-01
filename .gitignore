@@ -5,3 +5,13 @@
 .pytest_cache
 /src/nso_bdd_test_pkg.egg-info/**
 /src/nso_bdd_test_pkg.egg-info/
+.installed.cfg
+bin
+develop-eggs
+dist
+downloads
+eggs
+parts
+src/*.egg-info
+lib
+lib64
