@@ -20,4 +20,4 @@ lib64
 /src/*.egg-info/
 /src/*.egg-info/**
 dependency_links.txt
-/build/
+/build/**
