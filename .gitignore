@@ -3,3 +3,4 @@
 .DS_Store
 .TAG
 .pytest_cache
+.egg*
