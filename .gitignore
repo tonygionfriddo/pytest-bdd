@@ -3,4 +3,4 @@
 .DS_Store
 .TAG
 .pytest_cache
-nso_bdd_test_pkg.egg-info/**
+src/nso_bdd_test_pkg.egg-info/**
