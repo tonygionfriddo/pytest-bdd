@@ -1,5 +1,5 @@
-from pytest_bdd import scenario, given, when, then, parsers
-from libs.nso import NsoLibs
+from pytest_bdd import scenario, given, when, then
+from src.libs.nso import NsoLibs
 import pytest
 
 
