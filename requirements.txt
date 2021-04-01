@@ -1,0 +1,5 @@
+pytest
+pytest-bdd
+requests
+jinja2
+xmltodict
