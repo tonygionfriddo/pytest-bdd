@@ -1,0 +1,3 @@
+recursive-include /src *
+recursive-include /src/nso_bdd_test_pkg *
+recursive-include /src/nso_bdd_test_pkg/xml *
