@@ -24,3 +24,6 @@ dependency_links.txt
 /.coverage
 *.html
 *.tox
+/.tox/
+/.tox/**
+.package.lock
