@@ -150,7 +150,7 @@ class NsoLibs:
 
     def post_device_config(self, device_name, template, config):
         print(os.getcwd())
-        path = f"src/nso_bdd_test_pkg/xml/{template}"
+        path = f"{os.getenv('HOME')}/Documents/pytest-bdd/src/nso_bdd_test_pkg/xml/{template}"
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
@@ -178,7 +178,7 @@ class NsoLibs:
     def remove_device_trace(self, device_name, xml_file):
         print(os.getcwd())
         error = {}
-        path = f"src/nso_bdd_test_pkg/xml/{xml_file}"
+        path = f"{os.getenv('HOME')}/Documents/pytest-bdd/src/nso_bdd_test_pkg/xml/{xml_file}"
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
 
@@ -193,14 +193,14 @@ class NsoLibs:
         if r.status_code == 400:
             response = xmltodict.parse(r.text)
             if response['errors']['error']['error-message'] == 'patch to a nonexistent resource':
-                return True, error
+                return 0, error
             else:
-                return False, response['errors']['error']['error-message']
+                error['message'] = response['errors']['error']['error-message']
+                return 1, error
         elif r.status_code != 204:
             error = {"message": f"failed to remove device trace: {device_name}"}
-            return False, error
-        else:
-            return True, error
+            return 1, error
+        return 0, error
 
     def install_device_trace(self, device_name, xml_file):
         error = {}
@@ -226,9 +226,9 @@ class NsoLibs:
         )
         if r.status_code != 204:
             error = {"message": f"failed to install device trace: {device_name}"}
-            return False, error
-        else:
-            return True, error
+            return 1, error
+
+        return 0, error
 
     def sync_from_device(self, device_name):
         error = {}
@@ -240,14 +240,14 @@ class NsoLibs:
         )
         if r.status_code != 200:
             error = {"message": f"failed to sync from device: {device_name}"}
-            return False, error
+            return 1, error
         else:
             response = json.loads(r.text)
             if str(response['tailf-ncs:output']['result']).lower() != 'true':
                 error = {"message": f"failed to sync from device: {device_name}"}
-                return False, error
+                return 1, error
             else:
-                return True, error
+                return 0, error
 
     def get_device_config_dict(self, device_name, path):
         error = {}
