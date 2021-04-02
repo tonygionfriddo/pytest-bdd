@@ -149,6 +149,7 @@ class NsoLibs:
         return True, error
 
     def post_device_config(self, device_name, template, config):
+        print(os.getcwd())
         path = f"{os.getenv('HOME')}/Documents/pytest-bdd/src/nso_bdd_test_pkg/xml/{template}"
         with open(path) as file:
             xml_data = xmltodict.parse(file.read())
@@ -175,6 +176,7 @@ class NsoLibs:
         return 0, {}
 
     def remove_device_trace(self, device_name, xml_file):
+        print(os.getcwd())
         error = {}
         path = f"{os.getenv('HOME')}/Documents/pytest-bdd/src/nso_bdd_test_pkg/xml/{xml_file}"
         with open(path) as file:
