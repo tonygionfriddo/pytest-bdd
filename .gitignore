@@ -21,3 +21,5 @@ lib64
 /src/*.egg-info/**
 dependency_links.txt
 /build/**
+/.coverage
+*.html
