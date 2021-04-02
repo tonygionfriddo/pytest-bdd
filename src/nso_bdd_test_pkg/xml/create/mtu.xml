@@ -1,0 +1,10 @@
+<config>
+   <native xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-native">
+     <interface>
+       <GigabitEthernet>
+         <name>2</name>
+         <mtu>1500</mtu>
+       </GigabitEthernet>
+     </interface>
+   </native>
+ </config>

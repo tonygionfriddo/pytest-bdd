@@ -1,5 +1,6 @@
 from pytest_bdd import scenario, given, when, then
 from nso_bdd_test_pkg.libs.nso import NsoLibs
+from nso_bdd_test_pkg.libs.nso_ssh import NsoSshConnection
 import pytest
 
 
@@ -13,13 +14,18 @@ def config():
     return {}
 
 
+@pytest.fixture()
+def nso_ssh():
+    return NsoSshConnection
+
+
 @scenario(feature_name='../features/ios_netconf.feature', scenario_name='configure an ios interface')
 def test_ios_interface():
     pass
 
 
 @given("setup nso <ned> <device>")
-def setup_nso(nso_context, config, ned, device):
+def setup_nso(nso_context, nso_ssh, config, ned, device):
     config['device'] = device
     config['ned'] = ned
     # check device list for netconf device
@@ -36,6 +42,8 @@ def setup_nso(nso_context, config, ned, device):
     result, error = nso_context.remove_device_trace(device_name=device, xml_file='remove_trace.xml')
     assert not error
     assert result is True
+
+    # remove trace from logs dir
 
     # sync device
     result, error = nso_context.sync_from_device(device_name=device)
