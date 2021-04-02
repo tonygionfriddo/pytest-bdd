@@ -1,5 +1,7 @@
 pytest
 pytest-bdd
+pytest-html
+pytest-cov
 requests
 jinja2
 xmltodict
