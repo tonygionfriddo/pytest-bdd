@@ -81,6 +81,7 @@ class NsoSshConnection:
             # get file list
             _stdin, stdout, _stderr = self.ssh_client.exec_command(f'cd {path} && ls')
             output = [x.rstrip() for x in stdout.readlines()]
+            print('existing nso log files:')
             print(output)
         except Exception as e:
             print(f'failed to execute command via ssh client: cd {path} && ls')
@@ -107,7 +108,7 @@ class NsoSshConnection:
             msg = f'failed to remove file from server: {path}{file_name} {e}'
             print(msg)
             return 1, {'message': msg}
-        print(f'delete file success: {path} {file_name}...')
+        print(f'delete file success: {path}{file_name}...')
         return 0, {'result': 'success'}
 
     def transfer_files(self, remote_path, file, desc=None) -> Tuple[int, dict]:
@@ -129,7 +130,7 @@ class NsoSshConnection:
             msg = f'failed to transfer file: {file} {e}'
             print(msg)
             return 1, {'message': msg}
-        print('transfer file success...')
+        print(f'transfer file {file} success...')
         return 0, {}
 
     def disconnect(self) -> None:
