@@ -206,9 +206,6 @@ class NsoLibs:
         error = {}
         cwd = os.getcwd()
         split_path = cwd.split('/')
-        if 'tests' in split_path:
-            for _ in range(2):
-                split_path.pop(-1)
         split_path.append('xml')
         split_path.append(xml_file)
         join_path = ('/').join(split_path)

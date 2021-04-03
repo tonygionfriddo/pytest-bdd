@@ -34,9 +34,16 @@ class NsoSshConnection:
 
         try:
             os.mkdir('../test_results')
+        except FileExistsError as e:
+            if e.errno != 17:
+                print(f'failed to create test result directory: {result_path}')
+                return 1, {'message': str(e)}
+        except Exception as e:
+            print(f'failed to create test result directory: {result_path}')
+            return 1, {'message': str(e)}
+
+        try:
             os.mkdir(f'../test_results/{result_path}')
-            self.result_path = result_path
-            print(f'result_path: {result_path}')
         except FileExistsError as e:
             if e.errno != 17:
                 print(f'failed to create test result directory: {result_path}')
@@ -45,6 +52,8 @@ class NsoSshConnection:
             print(f'failed to create test result directory: {result_path}')
             return 1, {'message': str(e)}
         print('test result directory created...')
+        self.result_path = result_path
+        print(f'result_path: {result_path}')
         return 0, {'result': result_path}
 
     def connect(self) -> Tuple[int, dict]:
@@ -95,13 +104,13 @@ class NsoSshConnection:
                 print(msg)
                 return 1, {'message': msg}
         except Exception as e:
-            msg = f'failed to remove file from server: {path} {file_name} {e}'
+            msg = f'failed to remove file from server: {path}{file_name} {e}'
             print(msg)
             return 1, {'message': msg}
         print(f'delete file success: {path} {file_name}...')
         return 0, {'result': 'success'}
 
-    def transfer_files(self, remote_path, file) -> Tuple[int, dict]:
+    def transfer_files(self, remote_path, file, desc=None) -> Tuple[int, dict]:
         """
         transfer file from server to test results path
         """
@@ -111,14 +120,17 @@ class NsoSshConnection:
 
             # transfer files
             ftp_client = self.ssh_client.open_sftp()
-            ftp_client.get(f'{remote_path}{file}', f'{self.result_path}/{file}')
+            if desc is None:
+                ftp_client.get(f'{remote_path}{file}', f'{self.result_path}/{file}')
+            else:
+                ftp_client.get(f'{remote_path}{file}', f'{self.result_path}/{desc}-{file}')
             ftp_client.close()
         except Exception as e:
             msg = f'failed to transfer file: {file} {e}'
             print(msg)
             return 1, {'message': msg}
         print('transfer file success...')
-        return 0, {'result': 'success'}
+        return 0, {}
 
     def disconnect(self) -> None:
         # cleanup connections
