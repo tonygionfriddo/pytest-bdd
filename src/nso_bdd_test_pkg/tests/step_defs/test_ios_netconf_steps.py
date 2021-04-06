@@ -89,48 +89,8 @@ def check_cdb_config(nso_context, config):
     assert return_code == 0
 
 
-@given(parsers.parse("get sync from trace {stage}"))
-def get_sync_from_trace(nso_context, nso_ssh, config, stage):
-    # remove device trace
-    return_code, error = nso_context.remove_device_trace(device_name=config['device'], xml_file='remove_trace.xml')
-    assert not error
-    assert return_code == 0
-
-    # remove trace from logs dir
-    return_code, status = nso_ssh.delete_file(
-        path='/var/log/ncs',
-        file_name=f"netconf-{config['device']}.trace"
-    )
-    assert status['result'] == 'success'
-    assert return_code == 0
-
-    # restart clean trace
-    return_code, error = nso_context.install_device_trace(device_name=config['device'], xml_file='set_trace.xml')
-    assert not error
-    assert return_code == 0
-
-    # sync device
-    return_code, error = nso_context.sync_from_device(device_name=config['device'])
-    assert not error
-    assert return_code == 0
-
-    # verify trace log exists
-    return_code, result = nso_ssh.get_file_list(path='/var/log/ncs')
-    assert return_code == 0
-    assert config['trace_file'] in result['result']
-
-    # retrieve trace file from nso
-    print(nso_ssh.result_path)
-    return_code, error = nso_ssh.transfer_files(
-        remote_path='/var/log/ncs',
-        file=f"{config['trace_file']}",
-        desc=stage
-    )
-    assert not error
-    assert return_code == 0
-
-
 @then(parsers.parse("get sync from trace {stage}"))
+@given(parsers.parse("get sync from trace {stage}"))
 def get_sync_from_trace(nso_context, nso_ssh, config, stage):
     # remove device trace
     return_code, error = nso_context.remove_device_trace(device_name=config['device'], xml_file='remove_trace.xml')
